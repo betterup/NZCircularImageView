@@ -10,11 +10,6 @@
 
 @interface NZCircularImageView ()
 
-- (void)setImageWithResizeURL:(NSString *)stringUrl
-             placeholderImage:(UIImage *)placeholder
-                      options:(SDWebImageOptions)options
-  usingActivityIndicatorStyle:(UIActivityIndicatorViewStyle)activityStyle;
-
 - (void)addMaskToBounds:(CGRect)bounds;
 - (void)setup;
 
@@ -101,20 +96,15 @@
 
 - (void)setImageWithResizeURL:(NSString *)stringUrl
 {
-    [self setImageWithResizeURL:stringUrl usingActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    [self setImageWithResizeURL:stringUrl usingActivityIndicatorStyle:UIActivityIndicatorViewStyleGray completed:nil];
 }
 
 - (void)setImageWithResizeURL:(NSString *)stringUrl usingActivityIndicatorStyle:(UIActivityIndicatorViewStyle)activityStyle
 {
-    [self setImageWithResizeURL:stringUrl placeholderImage:nil usingActivityIndicatorStyle:activityStyle];
+    [self setImageWithResizeURL:stringUrl usingActivityIndicatorStyle:activityStyle completed:nil];
 }
 
-- (void)setImageWithResizeURL:(NSString *)stringUrl placeholderImage:(UIImage *)placeholder usingActivityIndicatorStyle:(UIActivityIndicatorViewStyle)activityStyle
-{
-    [self setImageWithResizeURL:stringUrl placeholderImage:placeholder options:kNilOptions usingActivityIndicatorStyle:activityStyle];
-}
-
-- (void)setImageWithResizeURL:(NSString *)stringUrl placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options usingActivityIndicatorStyle:(UIActivityIndicatorViewStyle)activityStyle
+- (void)setImageWithResizeURL:(NSString *)stringUrl usingActivityIndicatorStyle:(UIActivityIndicatorViewStyle)activityStyle completed:(SDWebImageCompletionBlock)completedBlock
 {
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:stringUrl]];
     
@@ -133,13 +123,18 @@
     [mStringUrl appendFormat:@"?width=%.0f", width];
     [mStringUrl appendFormat:@"&height=%.0f", height];
     [mStringUrl appendString:@"&mode=crop"];
-    
+
 #ifdef NZDEBUG
     NSLog(@"%s\nDownload image from url: %@", __PRETTY_FUNCTION__, mStringUrl);
 #endif
     
     NSURL *url = [NSURL URLWithString:mStringUrl];
-    [self setImageWithURL:url placeholderImage:placeholder options:options usingActivityIndicatorStyle:activityStyle];
+    
+    if (completedBlock) {
+        [self setImageWithURL:url completed:completedBlock usingActivityIndicatorStyle:activityStyle];
+    } else {
+        [self setImageWithURL:url usingActivityIndicatorStyle:activityStyle];
+    }
 }
 
 #pragma mark -
