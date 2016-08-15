@@ -10,6 +10,8 @@
 
 @interface NZCircularImageView ()
 
+@property (weak, nonatomic) CAShapeLayer *borderLayer;
+
 - (void)setImageWithResizeURL:(NSString *)stringUrl
              placeholderImage:(UIImage *)placeholder
                       options:(SDWebImageOptions)options
@@ -158,6 +160,8 @@
     maskLayer.position = point;
     
 	[self.layer setMask:maskLayer];
+    
+    [self.borderLayer removeFromSuperlayer];
 
     if ([self.borderWidth integerValue] > 0)
     {
@@ -173,6 +177,7 @@
         shape.position          = point;
 
         [self.layer addSublayer:shape];
+        self.borderLayer = shape;
     }
 
     CGPathRelease(maskPath);
